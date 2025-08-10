@@ -140,7 +140,7 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		Output: out,
 	})
 
-	// persist minimal metrics/notes file (optional)
+	// persist minimal metrics/notes file 
 	m := loadMem()
 	m.Metrics.Messages = msgCount
 	if m.Metrics.StartTS == 0 {
