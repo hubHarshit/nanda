@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pkl
+*.egg-info/
+.venv/
+env/
+venv/
+pip-wheel-metadata/
+
+# Go
+nanda-agent-sdk-go/nanda-go-agent
+nanda-agent-sdk-go/dist/
+nanda-agent-sdk-go/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Logs & local data
+conversation_logs/
+logs_agents*/
+*.log
+memory.json
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
