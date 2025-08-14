@@ -11,12 +11,12 @@ import (
 )
 
 type Health struct {
-	Status          string  `json:"status"`
-	Name            string  `json:"name"`
-	UptimeSec       int64   `json:"uptime_sec"`
-	Messages        int64   `json:"messages"`
-	RateLimitPerMin int     `json:"rate_limit_per_min"`
-	Version         string  `json:"version"`
+	Status          string `json:"status"`
+	Name            string `json:"name"`
+	UptimeSec       int64  `json:"uptime_sec"`
+	Messages        int64  `json:"messages"`
+	RateLimitPerMin int    `json:"rate_limit_per_min"`
+	Version         string `json:"version"`
 }
 
 type SendRequest struct {
@@ -49,7 +49,7 @@ var (
 )
 
 type memory struct {
-	Notes   []struct {
+	Notes []struct {
 		Text string `json:"text"`
 		TS   string `json:"ts"`
 	} `json:"notes"`
@@ -76,7 +76,6 @@ func saveMem(m memory) {
 }
 
 func improve(s string) string {
-	// Simple “LLM-lite” transform, mirrors your Python agent
 	out := strings.ReplaceAll(s, "hello", "greetings")
 	out = strings.ReplaceAll(out, "Hello", "Greetings")
 	out = strings.ReplaceAll(out, "goodbye", "farewell")
@@ -140,7 +139,6 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		Output: out,
 	})
 
-	// persist minimal metrics/notes file 
 	m := loadMem()
 	m.Metrics.Messages = msgCount
 	if m.Metrics.StartTS == 0 {
@@ -157,9 +155,12 @@ func renderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func agentsListHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]AgentInfo{{ID: "agent-go-1", Name: "nanda-go-agent"}})
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode([]AgentInfo{
+        {ID: "harshit-go-agent", Name: "nanda-go-agent"},
+    })
 }
+
 
 func main() {
 	mux := http.NewServeMux()
@@ -174,9 +175,20 @@ func main() {
 	}
 	addr := ":" + port
 
-	log.Printf("NANDA-Go agent listening on %s", addr)
-	log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatal(err)
+	certFile := os.Getenv("CERT_FILE")
+	keyFile := os.Getenv("KEY_FILE")
+
+	if certFile != "" && keyFile != "" {
+		log.Printf("NANDA-Go agent listening (HTTPS) on %s", addr)
+		log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
+		if err := http.ListenAndServeTLS(addr, certFile, keyFile, mux); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Printf("NANDA-Go agent listening (HTTP) on %s", addr)
+		log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
+		if err := http.ListenAndServe(addr, mux); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
