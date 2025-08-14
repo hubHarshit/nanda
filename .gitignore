@@ -10,6 +10,7 @@ __pycache__/
 env/
 venv/
 pip-wheel-metadata/
+venv311/
 
 # Go
 nanda-agent-sdk-go/nanda-go-agent
