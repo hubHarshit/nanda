@@ -11,12 +11,12 @@ import (
 )
 
 type Health struct {
-	Status          string  `json:"status"`
-	Name            string  `json:"name"`
-	UptimeSec       int64   `json:"uptime_sec"`
-	Messages        int64   `json:"messages"`
-	RateLimitPerMin int     `json:"rate_limit_per_min"`
-	Version         string  `json:"version"`
+	Status          string `json:"status"`
+	Name            string `json:"name"`
+	UptimeSec       int64  `json:"uptime_sec"`
+	Messages        int64  `json:"messages"`
+	RateLimitPerMin int    `json:"rate_limit_per_min"`
+	Version         string `json:"version"`
 }
 
 type SendRequest struct {
@@ -49,7 +49,7 @@ var (
 )
 
 type memory struct {
-	Notes   []struct {
+	Notes []struct {
 		Text string `json:"text"`
 		TS   string `json:"ts"`
 	} `json:"notes"`
@@ -76,7 +76,6 @@ func saveMem(m memory) {
 }
 
 func improve(s string) string {
-	// Simple “LLM-lite” transform, mirrors your Python agent
 	out := strings.ReplaceAll(s, "hello", "greetings")
 	out = strings.ReplaceAll(out, "Hello", "Greetings")
 	out = strings.ReplaceAll(out, "goodbye", "farewell")
@@ -140,7 +139,6 @@ func sendHandler(w http.ResponseWriter, r *http.Request) {
 		Output: out,
 	})
 
-	// persist minimal metrics/notes file 
 	m := loadMem()
 	m.Metrics.Messages = msgCount
 	if m.Metrics.StartTS == 0 {
@@ -168,15 +166,27 @@ func main() {
 	mux.HandleFunc("/api/render", renderHandler)
 	mux.HandleFunc("/api/agents/list", agentsListHandler)
 
-	port := "5000"
-	if p := os.Getenv("PORT"); p != "" {
-		port = p
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
 	}
+
 	addr := ":" + port
+	certFile := os.Getenv("CERT_FILE")
+	keyFile := os.Getenv("KEY_FILE")
 
 	log.Printf("NANDA-Go agent listening on %s", addr)
 	log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatal(err)
+
+	if certFile != "" && keyFile != "" {
+		log.Printf("Starting in HTTPS mode with cert: %s", certFile)
+		if err := http.ListenAndServeTLS(addr, certFile, keyFile, mux); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Printf("Starting in HTTP mode")
+		if err := http.ListenAndServe(addr, mux); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
