@@ -155,9 +155,12 @@ func renderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func agentsListHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode([]AgentInfo{{ID: "agent-go-1", Name: "nanda-go-agent"}})
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode([]AgentInfo{
+        {ID: "harshit-go-agent", Name: "nanda-go-agent"},
+    })
 }
+
 
 func main() {
 	mux := http.NewServeMux()
