@@ -166,25 +166,24 @@ func main() {
 	mux.HandleFunc("/api/render", renderHandler)
 	mux.HandleFunc("/api/agents/list", agentsListHandler)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "5000"
+	port := "5000"
+	if p := os.Getenv("PORT"); p != "" {
+		port = p
 	}
-
 	addr := ":" + port
+
 	certFile := os.Getenv("CERT_FILE")
 	keyFile := os.Getenv("KEY_FILE")
 
-	log.Printf("NANDA-Go agent listening on %s", addr)
-	log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
-
 	if certFile != "" && keyFile != "" {
-		log.Printf("Starting in HTTPS mode with cert: %s", certFile)
+		log.Printf("NANDA-Go agent listening (HTTPS) on %s", addr)
+		log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
 		if err := http.ListenAndServeTLS(addr, certFile, keyFile, mux); err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		log.Printf("Starting in HTTP mode")
+		log.Printf("NANDA-Go agent listening (HTTP) on %s", addr)
+		log.Printf("Endpoints: GET /api/health | POST /api/send | GET /api/render | GET /api/agents/list")
 		if err := http.ListenAndServe(addr, mux); err != nil {
 			log.Fatal(err)
 		}
